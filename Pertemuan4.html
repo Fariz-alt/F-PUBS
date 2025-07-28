@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Komponen Utama (PCA)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-light: #fefefe; /* Hampir putih bersih */
+            --bg-medium: #f0f4f8; /* Abu-abu sangat terang untuk kontras halus */
+            --text-dark: #212833; /* Teks gelap, lembut dari hitam */
+            --text-medium: #5a6b7d; /* Teks abu-abu untuk detail */
+            --primary-accent: #007bff; /* Biru cerah */
+            --primary-accent-dark: #0056b3; /* Biru lebih gelap untuk hover */
+            --secondary-accent: #28a745; /* Hijau cerah */
+            --gradient-start: #007bff; /* Biru untuk gradien */
+            --gradient-end: #00d2ff; /* Biru muda untuk gradien */
+            --code-bg: #eff2f6; /* Latar belakang kode yang sangat terang */
+            --code-text: #34495e; /* Teks kode yang terbaca */
+            --border-color-light: #e0e6ed; /* Border sangat terang */
+            --shadow-light: rgba(0, 0, 0, 0.04);
+            --shadow-medium: rgba(0, 0, 0, 0.08);
+            --shadow-bold: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.8; /* Jarak antar baris lebih nyaman */
+            color: var(--text-dark);
+            background-color: var(--bg-medium); /* Background abu-abu muda */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at top left, var(--bg-light) 0%, transparent 40%),
+                              radial-gradient(circle at bottom right, var(--bg-medium) 0%, transparent 40%); /* Gradasi latar belakang halus */
+            background-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1050px; /* Lebih lebar sedikit */
+            width: 92%;
+            margin: 60px auto;
+            background: var(--bg-light);
+            padding: 45px 55px;
+            border-radius: 20px; /* Lebih membulat */
+            box-shadow: 0 15px 45px var(--shadow-medium); /* Bayangan lebih dalam */
+            border: 1px solid var(--border-color-light);
+            position: relative;
+            z-index: 1; /* Pastikan di atas efek latar belakang */
+            transition: all 0.4s ease-in-out;
+        }
+        .container:hover {
+            box-shadow: 0 20px 60px var(--shadow-bold);
+            transform: translateY(-3px);
+        }
+
+        /* F-Pubs Logo/Name Styling */
+        .website-logo {
+            text-align: center;
+            margin-bottom: 40px; /* Jarak lebih besar */
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .website-logo a {
+            text-decoration: none;
+            color: var(--primary-accent);
+            font-size: 3em; /* Lebih besar */
+            font-weight: 800; /* Lebih tebal */
+            letter-spacing: 2px; /* Lebih lebar */
+            display: inline-block;
+            padding: 8px 25px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end)); /* Gradasi keren */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border: 2px solid transparent; /* Border transparan untuk gradien */
+            border-image: linear-gradient(45deg, var(--gradient-start), var(--gradient-end)) 1; /* Border gradien */
+            border-radius: 12px;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+            position: relative;
+            overflow: hidden; /* Untuk efek hover background */
+        }
+        .website-logo a::before { /* Efek background pada hover */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            transition: left 0.4s ease;
+            z-index: -1;
+            opacity: 0;
+        }
+        .website-logo a:hover::before {
+            left: 0;
+            opacity: 1;
+        }
+        .website-logo a:hover {
+            -webkit-text-fill-color: var(--bg-light); /* Teks jadi putih saat hover */
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            border-image: none; /* Hilangkan border gradien saat hover */
+            border-color: var(--primary-accent); /* Ganti dengan border solid */
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 3.8em; /* Sangat besar */
+            color: var(--text-dark); /* Lebih gelap */
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.08); /* Bayangan lebih halus */
+            margin-bottom: 15px;
+            font-weight: 800; /* Super tebal */
+            line-height: 1.2;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.35em;
+            color: var(--text-medium);
+            margin-bottom: 50px; /* Jarak lebih besar */
+            font-weight: 400;
+        }
+
+        h2, h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700; /* Lebih tebal */
+            color: var(--primary-accent-dark); /* Warna heading yang kuat */
+            margin-top: 50px;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 2.5em; /* Lebih besar */
+            position: relative;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-color-light); /* Lebih tipis */
+            color: var(--text-dark); /* Heading level 2 lebih gelap */
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 120px; /* Lebih panjang */
+            height: 4px; /* Lebih tebal */
+            background: linear-gradient(to right, var(--primary-accent), var(--gradient-end)); /* Gradien aksen */
+            border-radius: 2px;
+        }
+        h3 {
+            font-size: 1.8em; /* Lebih besar */
+            color: var(--primary-accent);
+            border-bottom: 1px solid var(--border-color-light); /* Border solid */
+            padding-bottom: 12px;
+        }
+        p {
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+            padding-left: 35px; /* Ruang lebih besar untuk ikon */
+            position: relative;
+            font-weight: 400; /* Sedikit lebih tebal */
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+        li::before {
+            content: "\f054"; /* Font Awesome angle-right icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--secondary-accent); /* Ikon hijau */
+            position: absolute;
+            left: 0;
+            top: 4px; /* Penyesuaian posisi */
+            font-size: 0.9em;
+            transform: scale(1.1); /* Sedikit lebih besar */
+        }
+        strong {
+            color: var(--primary-accent-dark);
+            font-weight: 700;
+        }
+        .equation {
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-size: 1.1em; /* Sedikit lebih besar */
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border-left: 6px solid var(--primary-accent); /* Lebih tebal */
+            padding: 22px 28px;
+            margin: 35px 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.98em; /* Sedikit lebih besar */
+            color: var(--code-text);
+            border-radius: 10px; /* Lebih membulat */
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 60px 0;
+            background-color: var(--bg-light); /* Latar belakang sama dengan kontainer utama */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .image-container:hover {
+            transform: translateY(-7px); /* Efek melayang lebih dramatis */
+            box-shadow: 0 15px 40px var(--shadow-medium);
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 3px solid var(--primary-accent); /* Border lebih tebal */
+            border-radius: 10px; /* Lebih membulat */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* Bayangan gambar lebih dalam */
+        }
+        .caption {
+            font-style: italic;
+            color: var(--text-medium);
+            margin-top: 25px;
+            font-size: 1.05em; /* Sedikit lebih besar */
+            font-weight: 300;
+        }
+
+        /* Table Styling */
+        .data-table-container {
+            margin: 40px 0;
+            overflow-x: auto; /* Untuk tabel yang lebar pada layar kecil */
+            background-color: var(--bg-light);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            padding: 20px;
+        }
+        .data-table-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color-light);
+            color: var(--primary-accent);
+            font-size: 1.6em;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Fira Code', monospace; /* Font monospace untuk data */
+            font-size: 0.9em;
+            color: var(--code-text);
+        }
+        .data-table thead th {
+            background-color: var(--primary-accent);
+            color: var(--bg-light);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-accent-dark);
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-medium); /* Warna latar genap */
+        }
+        .data-table tbody tr:hover {
+            background-color: #e6f7ff; /* Hover effect */
+            color: var(--primary-accent-dark);
+        }
+        .data-table tbody td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-color-light), transparent);
+            margin: 60px 0; /* Jarak lebih besar */
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 70px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color-light);
+            color: var(--text-medium);
+            font-size: 0.95em;
+            font-weight: 300;
+        }
+        footer a {
+            color: var(--primary-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: var(--primary-accent-dark);
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 30px auto;
+                padding: 30px 35px;
+            }
+            .website-logo a {
+                font-size: 2em;
+                padding: 5px 15px;
+            }
+            header h1 {
+                font-size: 2.8em;
+            }
+            .subtitle {
+                font-size: 1.1em;
+                margin-bottom: 30px;
+            }
+            h2 {
+                font-size: 2em;
+            }
+            h3 {
+                font-size: 1.5em;
+            }
+            .code-block {
+                font-size: 0.9em;
+                padding: 20px;
+            }
+            .image-container {
+                margin: 40px 0;
+                padding: 20px;
+            }
+            li {
+                padding-left: 30px;
+            }
+            .data-table thead th,
+            .data-table tbody td {
+                padding: 8px 10px; /* Kurangi padding tabel */
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            .subtitle {
+                font-size: 1em;
+            }
+            h2 {
+                font-size: 1.6em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+            .website-logo a {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="website-logo">
+                <a href="#">F-Pubs</a> 
+            </div>
+            <h1>Analisis Komponen Utama<br>(Principal Component Analysis - PCA)</h1>
+            <p class="subtitle">Mereduksi dimensi data sambil mempertahankan informasi kunci.</p>
+        </header>
+
+        <hr>
+
+        <main>
+            <h2>Apa Itu Analisis Komponen Utama (PCA)?</h2>
+            <p><strong>Analisis Komponen Utama (PCA)</strong> adalah teknik reduksi dimensi yang digunakan untuk mengubah sekumpulan variabel yang mungkin berkorelasi menjadi sekumpulan variabel baru yang tidak berkorelasi dan disebut <strong>komponen utama (principal components)</strong>. Tujuan utamanya adalah untuk menyederhanakan kompleksitas data dengan mengurangi jumlah variabel, namun tetap mempertahankan variabilitas (informasi) sebanyak mungkin.</p>
+            <p>Bayangkan Anda memiliki data dengan banyak fitur (kolom) yang beberapa di antaranya mungkin saling tumpang tindih informasinya. PCA akan mencari arah (vektor) dalam ruang data di mana variasi data paling besar, kemudian memproyeksikan data ke arah-arah baru ini. Arah-arah baru inilah yang disebut komponen utama.</p>
+
+            <hr>
+
+            <h2>Mengapa Menggunakan PCA?</h2>
+            <p>Ada beberapa alasan kuat mengapa PCA sering digunakan dalam analisis data:</p>
+            <ul>
+                <li><strong>Reduksi Dimensi:</strong> Mengurangi jumlah variabel dalam dataset. Ini sangat berguna untuk data berdimensi tinggi (high-dimensional data) yang sulit untuk divisualisasikan atau dianalisis.</li>
+                <li><strong>Mengatasi Multikolinearitas:</strong> Jika variabel-variabel dalam dataset memiliki korelasi yang tinggi, PCA menghasilkan komponen yang tidak berkorelasi, sehingga mengatasi masalah ini.</li>
+                <li><strong>Visualisasi Data:</strong> Dengan mengurangi dimensi menjadi dua atau tiga komponen utama, data yang awalnya kompleks dapat divisualisasikan dengan lebih mudah.</li>
+                <li><strong>Meningkatkan Kinerja Model:</strong> Dalam beberapa kasus, menggunakan komponen utama sebagai input untuk model machine learning dapat meningkatkan kinerja dan mengurangi overfitting.</li>
+                <li><strong>Identifikasi Pola:</strong> Komponen utama pertama seringkali mengungkapkan pola atau tren paling dominan dalam data.</li>
+            </ul>
+
+            <hr>
+
+            <h2>Konsep Dasar di Balik PCA</h2>
+            <p>PCA bekerja berdasarkan konsep varians dan korelasi. Berikut adalah langkah-langkah konseptual PCA:</p>
+            <ol>
+                <li><strong>Standarisasi Data:</strong> Penting untuk menstandarisasi data (rata-rata = 0, standar deviasi = 1) sebelum PCA, terutama jika variabel memiliki skala yang sangat berbeda.</li>
+                <li><strong>Perhitungan Matriks Kovarians:</strong> Menghitung matriks kovarians (atau korelasi) dari data yang telah distandarisasi.</li>
+                <li><strong>Perhitungan Eigenvalues dan Eigenvectors:</strong> Ini adalah inti dari PCA.
+                    <ul>
+                        <li><strong>Eigenvectors:</strong> Merepresentasikan arah atau orientasi komponen utama dalam ruang data asli.</li>
+                        <li><strong>Eigenvalues:</strong> Merepresentasikan besarnya varians yang dijelaskan oleh masing-masing eigenvector (komponen utama).</li>
+                    </ul>
+                </li>
+                <li><strong>Pemilihan Komponen Utama:</strong> Mengurutkan eigenvector berdasarkan eigenvalue-nya dari yang terbesar ke yang terkecil. Anda memilih sejumlah komponen utama yang dapat menjelaskan proporsi varians yang diinginkan (misalnya, 80% atau 90% dari total varians).</li>
+                <li><strong>Proyeksi Data:</strong> Mentransformasi (memproyeksikan) data asli ke ruang dimensi yang baru yang dibentuk oleh komponen utama yang terpilih.</li>
+            </ol>
+
+            <h3>Istilah Penting dalam PCA:</h3>
+            <ul>
+                <li><strong>Scree Plot:</strong> Sebuah grafik yang menampilkan eigenvalue untuk setiap komponen utama, digunakan untuk membantu memutuskan berapa banyak komponen utama yang harus dipertahankan.</li>
+                <li><strong>Loading:</strong> Nilai-nilai dalam eigenvector yang menunjukkan kontribusi (bobot) masing-masing variabel asli terhadap pembentukan komponen utama.</li>
+                <li><strong>Score/Skor Komponen:</strong> Nilai data yang diproyeksikan ke komponen utama.</li>
+            </ul>
+
+            <hr>
+
+            <h2>Contoh Implementasi PCA di R</h2>
+            <p>Mari kita gunakan dataset <code>iris</code> bawaan R untuk mendemonstrasikan PCA. Dataset ini memiliki 4 variabel numerik dan 1 variabel kategorikal. Kita akan melakukan PCA pada 4 variabel numerik.</p>
+
+            <h3>1. Memuat dan Mempersiapkan Data</h3>
+            <div class="code-block">
+                <pre><code># Memuat dataset iris bawaan R
+data(iris)
+
+# Melihat struktur data
+str(iris)
+
+# Melihat beberapa baris pertama data
+head(iris)
+
+# Pilih hanya kolom numerik untuk PCA (kecualikan kolom 'Species')
+iris_numeric <- iris[, -5]</code></pre>
+            </div>
+
+            <h3>2. Melakukan PCA</h3>
+            <p>Kita akan menggunakan fungsi <code>prcomp()</code> yang sudah memiliki argumen untuk standarisasi data secara otomatis.</p>
+            <div class="code-block">
+                <pre><code># Melakukan PCA dengan center = TRUE (mean = 0) dan scale. = TRUE (sd = 1)
+pca_result <- prcomp(iris_numeric, center = TRUE, scale. = TRUE)
+
+# Melihat ringkasan hasil PCA
+summary(pca_result)</code></pre>
+            </div>
+            <p>Output dari `summary(pca_result)` akan menunjukkan kontribusi varians dari setiap komponen utama. Misalnya:</p>
+            <div class="code-block">
+                <pre><code># Contoh Output Summary PCA:
+# Importance of components:
+#                           PC1    PC2     PC3     PC4
+# Standard deviation     1.7084 0.9560 0.38309 0.14393
+# Proportion of Variance 0.7296 0.2285 0.03669 0.00612
+# Cumulative Proportion  0.7296 0.9581 0.99482 1.00000</code></pre>
+            </div>
+            <p>Dari contoh di atas, PC1 menjelaskan sekitar 73% varians, dan PC1 + PC2 menjelaskan hampir 96% varians. Ini menunjukkan bahwa dua komponen pertama sudah menangkap sebagian besar informasi.</p>
+
+            <h3>3. Melihat Loadings dan Skor Komponen</h3>
+            <div class="code-block">
+                <pre><code># Melihat loadings (eigenvectors) - kontribusi variabel asli ke komponen
+pca_result$rotation
+
+# Melihat skor komponen (data yang telah ditransformasi)
+head(pca_result$x)</code></pre>
+            </div>
+
+            <h3>4. Visualisasi Hasil PCA</h3>
+            <p>Visualisasi adalah bagian krusial dari interpretasi PCA.</p>
+            <h4>Scree Plot:</h4>
+            <p>Membantu menentukan jumlah komponen yang akan dipertahankan.</p>
+            <div class="code-block">
+                <pre><code># install.packages("factoextra") # Jika belum terinstall
+library(factoextra)
+
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 80)) +
+  labs(title = "Scree Plot: Varians Dijelaskan oleh Komponen Utama")</code></pre>
+            </div>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhSpOhKlUFBEqOHFigBdo-Jkf60Viz7NLHpopJ_c0p9sglCaiM_0QB1NIz5ZOyOeLvBKNbrh899bVVlH9XBwXhmDWW3NYfach27gcPRlklx6tp7ob8h83hplWACTDZFrbJlSvtUqn1tRbneZ10fUxgbq4LwOEJ9jwCErouuRFotgFRung0yqoMVCgvt9O4" alt="Contoh Scree Plot PCA">
+                <p class="caption">Gambar 1: Scree Plot yang menunjukkan proporsi varians yang dijelaskan oleh setiap komponen utama.</p>
+            </div>
+
+            <h4>Visualisasi Data pada Bidang Komponen Utama (PC1 vs PC2):</h4>
+            <p>Melihat bagaimana observasi dikelompokkan dalam ruang dimensi baru.</p>
+            <div class="code-block">
+                <pre><code>library(ggplot2)
+
+pca_data <- as.data.frame(pca_result$x)
+pca_data$Species <- iris$Species
+
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Species)) +
+  geom_point(size = 3, alpha = 0.7) +
+  stat_ellipse(aes(group = Species), type = "norm", linetype = 2) +
+  labs(title = "Visualisasi Data Iris pada Bidang PC1 dan PC2",
+       x = "Komponen Utama 1 (Varians Dijelaskan: 73%)",
+       y = "Komponen Utama 2 (Varians Dijelaskan: 23%)",
+       color = "Spesies") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))</code></pre>
+            </div>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgWvV57keFHVzThTyJOFV6QsbrK1TtSOKzq8DAEg9lD27h4RABDunoxGJBxXD1jqAE7qOZWcxG1ZdKp51DlWuuVON24oJIEQBQMD9kjABvBYYVYV1mYzkwz9K8XugWtm8SgsEYy6eln--TKYyLeh7HM2YA0PGB2T0hKMN1afcfG3jve-BSW0iKd9D1Ogac" alt="Contoh Visualisasi Data PCA (PC1 vs PC2)">
+                <p class="caption">Gambar 2: Visualisasi individu dataset Iris pada bidang yang dibentuk oleh Komponen Utama 1 dan 2, dikelompokkan berdasarkan spesies.</p>
+            </div>
+
+            <h4>Visualisasi Variabel (Loadings Plot):</h4>
+            <p>Memahami bagaimana variabel asli berkontribusi pada komponen utama.</p>
+            <div class="code-block">
+                <pre><code>fviz_pca_var(pca_result,
+             col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE,
+             title = "Kontribusi Variabel ke Komponen Utama")</code></pre>
+            </div>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgeE184Sdc98b1OaadzkT9HfBC8MC3iPVm8Izl-XaOJWflkNF3jr9ZkLfG61SxXe2MQf02lHbHjXMpvBTT5RI3LeZefeV-Mi9yDMU2AI6lPP3XkixYStn6CmV-q-S7gDC--YSDxMls_TqneD0b_MEuaXTzJPh_wiK2Y8tPqRiQJ2XM-xanp86hiHxifdko" alt="Contoh Loadings Plot PCA">
+                <p class="caption">Gambar 3: Plot kontribusi variabel ke komponen utama. Panah menunjukkan arah dan kekuatan pengaruh variabel asli.</p>
+            </div>
+
+            <h4>Biplot (Menggabungkan Individu dan Variabel):</h4>
+            <p>Menggabungkan visualisasi individu dan variabel dalam satu plot.</p>
+            <div class="code-block">
+                <pre><code>fviz_pca_biplot(pca_result,
+                geom.ind = "point",
+                fill.ind = iris$Species,
+                pointshape = 21,
+                pointsize = 2.5,
+                palette = "jco",
+                col.var = "black",
+                repel = TRUE,
+                title = "Biplot PCA Iris Data")</code></pre>
+            </div>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhHVKZOJ6L6PAUw700DrbLYO1CiVx9xQgPuzwSAnLE0NuhWV_YK1fHTLgjL98opk_xBVxdjIBCUEUKJDFLivL_wR1HEQiVqC-MZmoklcQYJQLcYpsOGf-wF4EzbrOyVxM1UoRQ98rOiQWOsSchNzHwvwchULBuVMJMFOOV6z87nEnCsyTmCe2jjXYKjagk" alt="Contoh Biplot PCA">
+                <p class="caption">Gambar 4: Biplot PCA yang menampilkan individu (titik) dan variabel asli (panah) dalam ruang komponen utama.</p>
+            </div>
+
+            <hr>
+
+            <h2>Interpretasi Hasil PCA</h2>
+            <ul>
+                <li><strong>Proporsi Varians:</strong> Dari `summary(pca_result)`, pilih jumlah komponen yang menjelaskan persentase varians kumulatif yang tinggi (misalnya, 80% atau 90%).</li>
+                <li><strong>Loadings:</strong> Perhatikan koefisien dari setiap variabel asli pada setiap komponen utama. Ini menunjukkan variabel mana yang paling berkontribusi pada komponen tertentu.</li>
+                <li><strong>Visualisasi Data (Scatter Plot PC1 vs PC2):</strong> Plot ini menunjukkan bagaimana observasi dikelompokkan. Jika kelompok terpisah dengan baik, PCA efektif dalam membedakan mereka.</li>
+                <li><strong>Visualisasi Variabel (Loading Plot):</strong> Konfirmasi interpretasi numerik dari loadings. Panah panjang dan searah menunjukkan kontribusi kuat dan korelasi positif.</li>
+            </ul>
+
+            <hr>
+
+            <h2>Keterbatasan PCA</h2>
+            <ul>
+                <li><strong>Linearitas:</strong> PCA adalah metode linier. Jika hubungan antara variabel tidak linier, PCA mungkin tidak efektif.</li>
+                <li><strong>Kehilangan Informasi:</strong> PCA tetap merupakan metode reduksi dimensi, yang berarti sebagian informasi akan hilang.</li>
+                <li><strong>Interpretasi:</strong> Komponen utama bisa jadi sulit untuk diinterpretasikan secara intuitif, karena mereka adalah kombinasi linier dari banyak variabel asli.</li>
+            </ul>
+            <p>PCA adalah alat yang fundamental dalam toolkit seorang analis data atau ilmuwan data, terutama ketika berhadapan dengan dataset besar dan kompleks. Dengan kemampuannya untuk menyederhanakan data, ia memungkinkan visualisasi yang lebih baik, pemodelan yang lebih efisien, dan pemahaman yang lebih dalam tentang struktur data yang mendasari.</p>
+
+        </main>
+
+        <footer>
+            <p>&copy; 2025 F-Pubs. Memberdayakan Pemahaman Data. Semua hak dilindungi undang-undang.</p>
+            <p>
+                <a href="#">Kebijakan Privasi</a> | <a href="#">Syarat Penggunaan</a> | <a href="#">Hubungi Kami</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
