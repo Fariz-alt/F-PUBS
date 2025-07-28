@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kumpulan Materi Sintaks - LMSVVIP / RepoKode</title>
+    <title>Daftar Materi Sintaks - LMSVVIP / RepoKode</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
     <style>
         /* Reuse existing variables from your main CSS */
         :root {
@@ -178,8 +174,8 @@
             border: 2px solid var(--primary-color);
         }
 
-        /* Syntax Content Specific Styles */
-        .syntax-page-header {
+        /* Syntax List Specific Styles */
+        .syntax-list-header {
             background: var(--primary-color);
             color: white;
             padding: 50px 40px;
@@ -190,109 +186,108 @@
             margin-bottom: 40px;
         }
 
-        .syntax-page-header h1 {
+        .syntax-list-header h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
             font-weight: 700;
         }
 
-        .syntax-page-header p {
+        .syntax-list-header p {
             font-size: 1.1rem;
             opacity: 0.9;
             max-width: 800px;
             margin: 0 auto 20px;
         }
 
-        .syntax-section {
+        .syntax-list-content {
             padding: 0 40px 40px;
         }
 
-        .language-section {
+        .language-category {
+            margin-bottom: 50px;
             background: white;
             border-radius: 16px;
             padding: 30px;
-            margin-bottom: 40px;
             box-shadow: var(--card-shadow);
         }
 
-        .language-section h2 {
+        .language-category h2 {
             font-size: 2.2rem;
             color: var(--primary-dark);
             margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 15px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
         }
 
-        .language-section h2 i {
+        .language-category h2 i {
             font-size: 2.5rem;
             color: var(--secondary-color);
         }
 
-        .syntax-subsection {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: var(--background-light);
-            border-left: 5px solid var(--primary-color);
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        .syntax-item-list {
+            list-style: none;
+            padding: 0;
         }
 
-        .syntax-subsection h3 {
-            font-size: 1.6rem;
-            color: var(--dark-color);
-            margin-bottom: 15px;
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 8px;
-        }
-
-        .syntax-subsection p {
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 15px;
-        }
-
-        pre {
-            background-color: #282c34; /* Atom One Dark background */
-            color: #abb2bf; /* Atom One Dark text color */
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; /* Monospaced font */
-            font-size: 0.9rem;
-            line-height: 1.5;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        pre code {
-            display: block;
-            white-space: pre;
-        }
-
-        .copy-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background-color 0.3s ease;
+        .syntax-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            background-color: var(--background-light);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
         }
 
-        .copy-button:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+        .syntax-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .copy-button i {
-            font-size: 1rem;
+        .syntax-item-info {
+            flex-grow: 1;
+        }
+
+        .syntax-item-info h3 {
+            font-size: 1.3rem;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .syntax-item-info p {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .syntax-item .view-button {
+            display: inline-flex; /* Use flexbox for icon and text alignment */
+            align-items: center;
+            gap: 8px; /* Space between icon and text */
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            white-space: nowrap; /* Prevent button text from wrapping */
+            margin-left: 20px; /* Space from description */
+        }
+
+        .syntax-item .view-button i {
+            font-size: 1.1rem;
+            color: white; /* Ensure icon color is white */
+            margin-right: 0; /* Override default margin from menu-item */
+        }
+
+        .syntax-item .view-button:hover {
+            background-color: #d8206d; /* Darker accent color on hover */
         }
 
         /* Responsive Styles */
@@ -303,7 +298,7 @@
             .main-content {
                 margin-left: 250px;
             }
-            .syntax-section {
+            .syntax-list-content {
                 padding: 30px;
             }
         }
@@ -319,59 +314,63 @@
             .main-content {
                 margin-left: 0;
             }
-            .syntax-page-header h1 {
+            .syntax-list-header h1 {
                 font-size: 2.2rem;
             }
-            .syntax-page-header p {
+            .syntax-list-header p {
                 font-size: 1rem;
             }
             .menu-button {
                 display: block; /* Show menu button on smaller screens */
             }
-            .language-section h2 {
+            .language-category h2 {
                 font-size: 1.8rem;
             }
-            .language-section h2 i {
+            .language-category h2 i {
                 font-size: 2rem;
             }
-            .syntax-subsection h3 {
-                font-size: 1.4rem;
+            .syntax-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+            }
+            .syntax-item-info {
+                margin-bottom: 15px;
+            }
+            .syntax-item .view-button {
+                width: 100%;
+                justify-content: center;
+                margin-left: 0;
             }
         }
 
         @media (max-width: 768px) {
-            .syntax-section {
+            .syntax-list-content {
                 padding: 25px;
             }
-            .language-section {
+            .language-category {
                 padding: 25px;
-            }
-            .syntax-subsection {
-                padding: 15px;
-            }
-            pre {
-                font-size: 0.85rem;
             }
         }
 
         @media (max-width: 576px) {
-            .syntax-page-header {
+            .syntax-list-header {
                 padding: 30px 15px;
                 text-align: left;
             }
-            .syntax-page-header h1 {
+            .syntax-list-header h1 {
                 font-size: 1.8rem;
             }
-            .syntax-section {
+            .syntax-list-content {
                 padding: 15px;
             }
-            .language-section h2 {
+            .language-category h2 {
                 font-size: 1.5rem;
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 5px;
             }
-            .language-section h2 i {
+            .language-category h2 i {
                 font-size: 1.8rem;
             }
         }
@@ -436,254 +435,118 @@
                 </div>
             </nav>
 
-            <header class="syntax-page-header">
-                <h1>Kumpulan Materi Sintaks Data Sains</h1>
-                <p>Panduan praktis berisi contoh sintaks penting untuk analisis data dan statistika menggunakan R dan Python.</p>
+            <header class="syntax-list-header">
+                <h1>Daftar Materi Sintaks & Referensi</h1>
+                <p>Jelajahi berbagai topik sintaks esensial untuk analisis data dan statistika, lengkap dengan contoh dan penjelasan.</p>
             </header>
 
-            <div class="syntax-section">
-                <section class="language-section">
+            <div class="syntax-list-content">
+                <section class="language-category">
                     <h2><i class="uil uil-chart-growth"></i> Sintaks R</h2>
-
-                    <div class="syntax-subsection">
-                        <h3>1. Dasar-dasar R</h3>
-                        <p>Memulai dengan R: variabel, tipe data, dan operasi dasar.</p>
-                        <pre><code class="language-r"># Komentar di R
-variabel_angka <- 10.5
-variabel_teks <- "Halo R!"
-variabel_boolean <- TRUE
-
-# Operasi aritmatika
-hasil_tambah <- 5 + 3
-hasil_kali <- variabel_angka * 2
-
-# Mencetak nilai
-print(variabel_teks)
-cat("Hasil penjumlahan:", hasil_tambah, "\n")
-
-# Vektor
-my_vector <- c(1, 2, 3, 4, 5)
-names(my_vector) <- c("a", "b", "c", "d", "e") # Memberi nama elemen
-
-# Data Frame
-data_frame_example <- data.frame(
-  Nama = c("Andi", "Budi", "Citra"),
-  Usia = c(25, 30, 22),
-  Kota = c("Jakarta", "Bandung", "Surabaya")
-)
-print(data_frame_example)
-</code></pre>
-                        <button class="copy-button" onclick="copyCode(this)"><i class="uil uil-copy"></i> Salin Kode</button>
-                    </div>
-
-                    <div class="syntax-subsection">
-                        <h3>2. Manipulasi Data dengan `dplyr`</h3>
-                        <p>Pustaka `dplyr` menyediakan fungsi-fungsi kuat untuk memanipulasi data frame.</p>
-                        <pre><code class="language-r"># Memuat pustaka
-library(dplyr)
-library(ggplot2) # Untuk contoh data
-
-# Contoh data
-data("mtcars")
-df_mtcars <- as_tibble(mtcars) # Mengubah ke tibble untuk dplyr
-
-# Filter baris: pilih mobil dengan cyl = 4
-filtered_data <- df_mtcars %>%
-  filter(cyl == 4)
-print(filtered_data)
-
-# Pilih kolom: hanya nama model, mpg, dan hp
-selected_data <- df_mtcars %>%
-  select(mpg, hp, wt)
-print(selected_data)
-
-# Menambah kolom baru: rasio hp per mpg
-mutated_data <- df_mtcars %>%
-  mutate(hp_per_mpg = hp / mpg)
-print(mutated_data)
-
-# Mengelompokkan dan meringkas data: rata-rata mpg per jumlah silinder
-summarized_data <- df_mtcars %>%
-  group_by(cyl) %>%
-  summarize(
-    rata_rata_mpg = mean(mpg),
-    count = n()
-  )
-print(summarized_data)
-
-# Mengatur urutan: berdasarkan mpg secara menurun
-arranged_data <- df_mtcars %>%
-  arrange(desc(mpg))
-print(arranged_data)
-</code></pre>
-                        <button class="copy-button" onclick="copyCode(this)"><i class="uil uil-copy"></i> Salin Kode</button>
-                    </div>
-
-                    <div class="syntax-subsection">
-                        <h3>3. Visualisasi Data dengan `ggplot2`</h3>
-                        <p>Membuat grafik informatif dan menarik dengan `ggplot2`.</p>
-                        <pre><code class="language-r"># Memuat pustaka
-library(ggplot2)
-
-# Scatter Plot: mpg vs wt
-ggplot(mtcars, aes(x = wt, y = mpg)) +
-  geom_point(aes(color = factor(cyl))) + # Titik dengan warna berdasarkan silinder
-  labs(
-    title = "Hubungan Berat Mobil dan MPG",
-    x = "Berat (1000 lbs)",
-    y = "Miles/(US) gallon",
-    color = "Silinder"
-  ) +
-  theme_minimal()
-
-# Histogram: distribusi mpg
-ggplot(mtcars, aes(x = mpg)) +
-  geom_histogram(binwidth = 2, fill = "steelblue", color = "black") +
-  labs(
-    title = "Distribusi MPG Mobil",
-    x = "Miles/(US) gallon",
-    y = "Frekuensi"
-  ) +
-  theme_light()
-
-# Box Plot: mpg berdasarkan silinder
-ggplot(mtcars, aes(x = factor(cyl), y = mpg)) +
-  geom_boxplot(fill = "lightgreen") +
-  labs(
-    title = "Distribusi MPG berdasarkan Jumlah Silinder",
-    x = "Jumlah Silinder",
-    y = "Miles/(US) gallon"
-  ) +
-  theme_classic()
-</code></pre>
-                        <button class="copy-button" onclick="copyCode(this)"><i class="uil uil-copy"></i> Salin Kode</button>
-                    </div>
+                    <ul class="syntax-item-list">
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Dasar-dasar Pemrograman R</h3>
+                                <p>Mempelajari variabel, tipe data, struktur kontrol (if-else, loop), dan fungsi dasar di R.</p>
+                            </div>
+                            <a href="syntax_r_dasar.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Manipulasi Data dengan `dplyr`</h3>
+                                <p>Panduan menggunakan fungsi-fungsi `dplyr` seperti `filter()`, `select()`, `mutate()`, `group_by()`, dan `summarize()` untuk transformasi data.</p>
+                            </div>
+                            <a href="syntax_r_dplyr.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Visualisasi Data dengan `ggplot2`</h3>
+                                <p>Membuat berbagai jenis plot (scatter, bar, line, boxplot, histogram) yang menarik dan informatif menggunakan `ggplot2`.</p>
+                            </div>
+                            <a href="syntax_r_ggplot2.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Statistika Dasar dengan R</h3>
+                                <p>Sintaks untuk uji statistik umum (t-test, anova, chi-square), regresi linear, dan konsep probabilitas.</p>
+                            </div>
+                            <a href="syntax_r_statistika.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                    </ul>
                 </section>
 
-                <section class="language-section">
+                <section class="language-category">
                     <h2><i class="uil uil-robot"></i> Sintaks Python</h2>
+                    <ul class="syntax-item-list">
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Dasar-dasar Pemrograman Python</h3>
+                                <p>Pengenalan variabel, tipe data, struktur data (list, tuple, dict), dan kontrol alir di Python.</p>
+                            </div>
+                            <a href="syntax_python_dasar.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Analisis Data dengan `pandas`</h3>
+                                <p>Manipulasi dan pembersihan data menggunakan DataFrame `pandas`, termasuk filter, join, group by, dan agregasi.</p>
+                            </div>
+                            <a href="syntax_python_pandas.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Visualisasi Data dengan `Matplotlib` & `Seaborn`</h3>
+                                <p>Membuat plot statistik dan eksplorasi data yang indah dengan dua pustaka visualisasi terpopuler di Python.</p>
+                            </div>
+                            <a href="syntax_python_visualisasi.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Machine Learning dengan `Scikit-learn`</h3>
+                                <p>Sintaks dasar untuk implementasi model regresi, klasifikasi, dan *clustering* menggunakan `scikit-learn`.</p>
+                            </div>
+                            <a href="syntax_python_ml.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                    </ul>
+                </section>
 
-                    <div class="syntax-subsection">
-                        <h3>1. Dasar-dasar Python</h3>
-                        <p>Memulai dengan Python: variabel, tipe data, dan operasi dasar.</p>
-                        <pre><code class="language-python"># Komentar di Python
-variable_int = 10
-variable_float = 20.5
-variable_string = "Hello Python!"
-variable_boolean = True
-
-# Operasi aritmatika
-result_add = 5 + 3
-result_multiply = variable_float * 2
-
-# Mencetak nilai
-print(variable_string)
-print(f"Hasil penjumlahan: {result_add}") # Menggunakan f-string
-
-# List
-my_list = [1, 2, 3, 4, 5]
-
-# Dictionary
-my_dict = {
-    "nama": "Budi",
-    "usia": 28,
-    "kota": "Yogyakarta"
-}
-print(my_dict["nama"])
-</code></pre>
-                        <button class="copy-button" onclick="copyCode(this)"><i class="uil uil-copy"></i> Salin Kode</button>
-                    </div>
-
-                    <div class="syntax-subsection">
-                        <h3>2. Manipulasi Data dengan Pandas</h3>
-                        <p>Pustaka `pandas` adalah tulang punggung analisis data di Python.</p>
-                        <pre><code class="language-python">import pandas as pd
-import numpy as np # Untuk contoh data
-
-# Membuat DataFrame dari dictionary
-data = {
-    'Nama': ['Andi', 'Budi', 'Citra', 'Dini'],
-    'Usia': [25, 30, 22, 28],
-    'Kota': ['Jakarta', 'Bandung', 'Jakarta', 'Surabaya'],
-    'Pendapatan': [5000, 6000, 4500, 7000]
-}
-df = pd.DataFrame(data)
-print("DataFrame Awal:")
-print(df)
-
-# Memilih kolom
-nama_usia = df[['Nama', 'Usia']]
-print("\nNama dan Usia:")
-print(nama_usia)
-
-# Memfilter baris: Usia > 25
-filtered_df = df[df['Usia'] > 25]
-print("\nFilter Usia > 25:")
-print(filtered_df)
-
-# Menambah kolom baru
-df['Pajak'] = df['Pendapatan'] * 0.1
-print("\nDengan Kolom Pajak:")
-print(df)
-
-# Mengelompokkan dan meringkas data: rata-rata pendapatan per kota
-avg_income_by_city = df.groupby('Kota')['Pendapatan'].mean().reset_index()
-print("\nRata-rata Pendapatan per Kota:")
-print(avg_income_by_city)
-
-# Menggabungkan DataFrame (contoh sederhana)
-df2 = pd.DataFrame({'Kota': ['Jakarta', 'Bandung'], 'Populasi': [10, 3]})
-merged_df = pd.merge(df, df2, on='Kota', how='left')
-print("\nDataFrame Gabungan:")
-print(merged_df)
-</code></pre>
-                        <button class="copy-button" onclick="copyCode(this)"><i class="uil uil-copy"></i> Salin Kode</button>
-                    </div>
-
-                    <div class="syntax-subsection">
-                        <h3>3. Visualisasi Data dengan Matplotlib & Seaborn</h3>
-                        <p>Membuat plot yang informatif untuk eksplorasi data.</p>
-                        <pre><code class="language-python">import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-import numpy as np
-
-# Contoh Data
-np.random.seed(42)
-data = {
-    'Category': np.random.choice(['A', 'B', 'C'], 100),
-    'Value': np.random.normal(loc=50, scale=10, size=100),
-    'Group': np.random.choice(['X', 'Y'], 100)
-}
-df_plot = pd.DataFrame(data)
-
-# Scatter Plot
-plt.figure(figsize=(8, 6))
-sns.scatterplot(x='Value', y='Category', hue='Group', data=df_plot)
-plt.title('Scatter Plot Contoh')
-plt.xlabel('Nilai')
-plt.ylabel('Kategori')
-plt.grid(True)
-plt.show()
-
-# Histogram
-plt.figure(figsize=(8, 6))
-sns.histplot(df_plot['Value'], bins=10, kde=True, color='skyblue')
-plt.title('Distribusi Nilai')
-plt.xlabel('Nilai')
-plt.ylabel('Frekuensi')
-plt.show()
-
-# Box Plot
-plt.figure(figsize=(8, 6))
-sns.boxplot(x='Category', y='Value', data=df_plot, palette='viridis')
-plt.title('Box Plot Nilai per Kategori')
-plt.xlabel('Kategori')
-plt.ylabel('Nilai')
-plt.show()
-</code></pre>
-                        <button class="copy-button" onclick="copyCode(this)"><i class="uil uil-copy"></i> Salin Kode</button>
-                    </div>
+                <section class="language-category">
+                    <h2><i class="uil uil-book-reader"></i> Lain-lain</h2>
+                    <ul class="syntax-item-list">
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Sintaks SQL Dasar</h3>
+                                <p>Perintah-perintah SELECT, FROM, WHERE, GROUP BY, JOIN untuk interaksi dengan database.</p>
+                            </div>
+                            <a href="syntax_sql_dasar.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                        <li class="syntax-item">
+                            <div class="syntax-item-info">
+                                <h3>Pengantar Git & GitHub</h3>
+                                <p>Dasar-dasar kontrol versi untuk kolaborasi proyek dan manajemen kode Anda.</p>
+                            </div>
+                            <a href="syntax_git.html" class="view-button">
+                                <i class="uil uil-arrow-right"></i> Lihat Materi
+                            </a>
+                        </li>
+                    </ul>
                 </section>
             </div>
         </div>
@@ -695,46 +558,9 @@ plt.show()
             document.querySelector('.sidebar').classList.toggle('active');
         });
 
-        // Initialize Highlight.js
-        document.addEventListener('DOMContentLoaded', (event) => {
-            hljs.highlightAll();
-
-            // Add copy functionality to code blocks
-            document.querySelectorAll('pre code').forEach((block) => {
-                const pre = block.parentNode;
-                const copyButton = pre.querySelector('.copy-button');
-
-                if (copyButton) {
-                    copyButton.addEventListener('click', () => {
-                        const code = block.textContent;
-                        navigator.clipboard.writeText(code).then(() => {
-                            const originalText = copyButton.innerHTML;
-                            copyButton.innerHTML = '<i class="uil uil-check"></i> Disalin!';
-                            setTimeout(() => {
-                                copyButton.innerHTML = originalText; // Revert back
-                            }, 2000);
-                        }).catch(err => {
-                            console.error('Failed to copy text: ', err);
-                        });
-                    });
-                }
-            });
-            console.log('Syntax materials page loaded successfully!');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Syntax List page loaded successfully!');
         });
-
-        // Function to create copy buttons dynamically if not already present in HTML
-        function addCopyButtonsToPre() {
-            document.querySelectorAll('pre').forEach(pre => {
-                if (!pre.querySelector('.copy-button')) { // Avoid adding duplicate buttons
-                    const button = document.createElement('button');
-                    button.className = 'copy-button';
-                    button.innerHTML = '<i class="uil uil-copy"></i> Salin Kode';
-                    pre.appendChild(button);
-                }
-            });
-        }
-        // Call this function on page load if you generate pre tags dynamically
-        // addCopyButtonsToPre(); // Uncomment if needed later
     </script>
 </body>
 </html>
