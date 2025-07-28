@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Regresi: Visualisasi Variasi Data</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-light: #fefefe; /* Hampir putih bersih */
+            --bg-medium: #f0f4f8; /* Abu-abu sangat terang untuk kontras halus */
+            --text-dark: #212833; /* Teks gelap, lembut dari hitam */
+            --text-medium: #5a6b7d; /* Teks abu-abu untuk detail */
+            --primary-accent: #007bff; /* Biru cerah */
+            --primary-accent-dark: #0056b3; /* Biru lebih gelap untuk hover */
+            --secondary-accent: #28a745; /* Hijau cerah */
+            --gradient-start: #007bff; /* Biru untuk gradien */
+            --gradient-end: #00d2ff; /* Biru muda untuk gradien */
+            --code-bg: #eff2f6; /* Latar belakang kode yang sangat terang */
+            --code-text: #34495e; /* Teks kode yang terbaca */
+            --border-color-light: #e0e6ed; /* Border sangat terang */
+            --shadow-light: rgba(0, 0, 0, 0.04);
+            --shadow-medium: rgba(0, 0, 0, 0.08);
+            --shadow-bold: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.8; /* Jarak antar baris lebih nyaman */
+            color: var(--text-dark);
+            background-color: var(--bg-medium); /* Background abu-abu muda */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at top left, var(--bg-light) 0%, transparent 40%),
+                              radial-gradient(circle at bottom right, var(--bg-medium) 0%, transparent 40%); /* Gradasi latar belakang halus */
+            background-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1050px; /* Lebih lebar sedikit */
+            width: 92%;
+            margin: 60px auto;
+            background: var(--bg-light);
+            padding: 45px 55px;
+            border-radius: 20px; /* Lebih membulat */
+            box-shadow: 0 15px 45px var(--shadow-medium); /* Bayangan lebih dalam */
+            border: 1px solid var(--border-color-light);
+            position: relative;
+            z-index: 1; /* Pastikan di atas efek latar belakang */
+            transition: all 0.4s ease-in-out;
+        }
+        .container:hover {
+            box-shadow: 0 20px 60px var(--shadow-bold);
+            transform: translateY(-3px);
+        }
+
+        /* F-Pubs Logo/Name Styling */
+        .website-logo {
+            text-align: center;
+            margin-bottom: 40px; /* Jarak lebih besar */
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .website-logo a {
+            text-decoration: none;
+            color: var(--primary-accent);
+            font-size: 3em; /* Lebih besar */
+            font-weight: 800; /* Lebih tebal */
+            letter-spacing: 2px; /* Lebih lebar */
+            display: inline-block;
+            padding: 8px 25px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end)); /* Gradasi keren */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border: 2px solid transparent; /* Border transparan untuk gradien */
+            border-image: linear-gradient(45deg, var(--gradient-start), var(--gradient-end)) 1; /* Border gradien */
+            border-radius: 12px;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+            position: relative;
+            overflow: hidden; /* Untuk efek hover background */
+        }
+        .website-logo a::before { /* Efek background pada hover */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            transition: left 0.4s ease;
+            z-index: -1;
+            opacity: 0;
+        }
+        .website-logo a:hover::before {
+            left: 0;
+            opacity: 1;
+        }
+        .website-logo a:hover {
+            -webkit-text-fill-color: var(--bg-light); /* Teks jadi putih saat hover */
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            border-image: none; /* Hilangkan border gradien saat hover */
+            border-color: var(--primary-accent); /* Ganti dengan border solid */
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 3.8em; /* Sangat besar */
+            color: var(--text-dark); /* Lebih gelap */
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.08); /* Bayangan lebih halus */
+            margin-bottom: 15px;
+            font-weight: 800; /* Super tebal */
+            line-height: 1.2;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.35em;
+            color: var(--text-medium);
+            margin-bottom: 50px; /* Jarak lebih besar */
+            font-weight: 400;
+        }
+
+        h2, h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700; /* Lebih tebal */
+            color: var(--primary-accent-dark); /* Warna heading yang kuat */
+            margin-top: 50px;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 2.5em; /* Lebih besar */
+            position: relative;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-color-light); /* Lebih tipis */
+            color: var(--text-dark); /* Heading level 2 lebih gelap */
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 120px; /* Lebih panjang */
+            height: 4px; /* Lebih tebal */
+            background: linear-gradient(to right, var(--primary-accent), var(--gradient-end)); /* Gradien aksen */
+            border-radius: 2px;
+        }
+        h3 {
+            font-size: 1.8em; /* Lebih besar */
+            color: var(--primary-accent);
+            border-bottom: 1px solid var(--border-color-light); /* Border solid */
+            padding-bottom: 12px;
+        }
+        p {
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+            padding-left: 35px; /* Ruang lebih besar untuk ikon */
+            position: relative;
+            font-weight: 400; /* Sedikit lebih tebal */
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+        li::before {
+            content: "\f054"; /* Font Awesome angle-right icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--secondary-accent); /* Ikon hijau */
+            position: absolute;
+            left: 0;
+            top: 4px; /* Penyesuaian posisi */
+            font-size: 0.9em;
+            transform: scale(1.1); /* Sedikit lebih besar */
+        }
+        strong {
+            color: var(--primary-accent-dark);
+            font-weight: 700;
+        }
+        .equation {
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-size: 1.1em; /* Sedikit lebih besar */
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border-left: 6px solid var(--primary-accent); /* Lebih tebal */
+            padding: 22px 28px;
+            margin: 35px 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.98em; /* Sedikit lebih besar */
+            color: var(--code-text);
+            border-radius: 10px; /* Lebih membulat */
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 60px 0;
+            background-color: var(--bg-light); /* Latar belakang sama dengan kontainer utama */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .image-container:hover {
+            transform: translateY(-7px); /* Efek melayang lebih dramatis */
+            box-shadow: 0 15px 40px var(--shadow-medium);
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 3px solid var(--primary-accent); /* Border lebih tebal */
+            border-radius: 10px; /* Lebih membulat */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* Bayangan gambar lebih dalam */
+        }
+        .caption {
+            font-style: italic;
+            color: var(--text-medium);
+            margin-top: 25px;
+            font-size: 1.05em; /* Sedikit lebih besar */
+            font-weight: 300;
+        }
+
+        /* Table Styling */
+        .data-table-container {
+            margin: 40px 0;
+            overflow-x: auto; /* Untuk tabel yang lebar pada layar kecil */
+            background-color: var(--bg-light);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            padding: 20px;
+        }
+        .data-table-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color-light);
+            color: var(--primary-accent);
+            font-size: 1.6em;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Fira Code', monospace; /* Font monospace untuk data */
+            font-size: 0.9em;
+            color: var(--code-text);
+        }
+        .data-table thead th {
+            background-color: var(--primary-accent);
+            color: var(--bg-light);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-accent-dark);
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-medium); /* Warna latar genap */
+        }
+        .data-table tbody tr:hover {
+            background-color: #e6f7ff; /* Hover effect */
+            color: var(--primary-accent-dark);
+        }
+        .data-table tbody td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-color-light), transparent);
+            margin: 60px 0; /* Jarak lebih besar */
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 70px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color-light);
+            color: var(--text-medium);
+            font-size: 0.95em;
+            font-weight: 300;
+        }
+        footer a {
+            color: var(--primary-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: var(--primary-accent-dark);
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 30px auto;
+                padding: 30px 35px;
+            }
+            .website-logo a {
+                font-size: 2em;
+                padding: 5px 15px;
+            }
+            header h1 {
+                font-size: 2.8em;
+            }
+            .subtitle {
+                font-size: 1.1em;
+                margin-bottom: 30px;
+            }
+            h2 {
+                font-size: 2em;
+            }
+            h3 {
+                font-size: 1.5em;
+            }
+            .code-block {
+                font-size: 0.9em;
+                padding: 20px;
+            }
+            .image-container {
+                margin: 40px 0;
+                padding: 20px;
+            }
+            li {
+                padding-left: 30px;
+            }
+            .data-table thead th,
+            .data-table tbody td {
+                padding: 8px 10px; /* Kurangi padding tabel */
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            .subtitle {
+                font-size: 1em;
+            }
+            h2 {
+                font-size: 1.6em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+            .website-logo a {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+<script type="text/javascript" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="website-logo">
+                <a href="#">F-Pubs</a> 
+                </div>
+            <h1>Analisis Regresi:<br>Visualisasi Variasi Data</h1>
+            <p class="subtitle">Panduan mendalam untuk memahami SSE, SSR, dan SST dalam konteks model prediksi.</p>
+        </header>
+
+        <hr>
+
+        <main>
+            <h2>Pendahuluan</h2>
+            <p>Dalam ranah analisis regresi linier, tujuan utama kita adalah membangun model yang secara akurat memprediksi hubungan antara variabel independen (X) dan variabel dependen (Y). Untuk mengukur dan mengevaluasi kinerja serta menjelaskan variasi dalam data, kita menguraikan total variasi menjadi tiga metrik fundamental:</p>
+            <ul>
+                <li><strong>SST (Total Sum of Squares):</strong> Merupakan ukuran agregat dari total variasi yang melekat pada variabel dependen (Y). Secara intuitif, ini menggambarkan seberapa jauh setiap titik data Y menyebar dari nilai rata-ratanya.</li>
+                <li><strong>SSR (Regression Sum of Squares):</strong> Mengkuantifikasi porsi variasi pada variabel Y yang berhasil <strong>dijelaskan</strong> dan ditangkap oleh model regresi yang kita bangun. Ini merefleksikan seberapa dekat nilai Y yang diprediksi oleh model \( \hat{Y} \) dengan rata-rata Y.</li>
+                <li><strong>SSE (Error Sum of Squares):</strong> Dikenal juga sebagai jumlah kuadrat residu, SSE mewakili bagian dari variasi pada variabel Y yang <strong>tidak dapat dijelaskan</strong> oleh model kita. Ini adalah sisa 'noise' atau 'error' yang tidak berhasil diprediksi oleh model, diukur dari deviasi antara nilai Y aktual dan nilai Y yang diprediksi \( \hat{Y} \).</li>
+            </ul>
+            <p>Hubungan fundamental yang mengikat ketiga metrik ini adalah identitas matematis yang tak terpisahkan: <span class="equation">SST = SSR + SSE</span>.</p>
+
+            <hr>
+
+            <h2>Contoh</h2>
+            <p>Untuk memvisualisasikan konsep-konsep ini, kita akan menggunakan dataset buatan yang sederhana, yang mencakup variabel independen (X) dan variabel dependen (Y) Berikut adalah tampilan sebagian data yang akan kita gunakan:</p>
+            <div class="data-table-container">
+                <h3>Data Sampel Regresi</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Bulan</th>
+                            <th>Y(Inflasi)</th>
+                            <th>X1(M1)</th>                            
+                            <th>X2(Ekspor)</th>
+                            <th>X3(Kurs)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr><td>Januari</td><td>5,28</td><td>2.422.174,00</td><td>22.320,71</td><td>14.979,00</td></tr>
+<tr><td>Februari</td><td>5,47</td><td>2.403.593,54</td><td>21.319,76</td><td>15.274,00</td></tr>
+<tr><td>Maret</td><td>4,97</td><td>2.408.418,91</td><td>23.413,90</td><td>14.979,00</td></tr>
+<tr><td>April</td><td>4,33</td><td>2.472.869,46</td><td>19.280,37</td><td>14.751,00</td></tr>
+<tr><td>Mei</td><td>4,00</td><td>2.423.317,96</td><td>21.706,53</td><td>15.062,00</td></tr>
+<tr><td>Juni</td><td>3,52</td><td>2.466.093,07</td><td>20.598,95</td><td>15.026,00</td></tr>
+<tr><td>Juli</td><td>3,08</td><td>2.438.058,76</td><td>20.861,29</td><td>14.969,00</td></tr>
+<tr><td>Agustus</td><td>3,27</td><td>2.410.850,87</td><td>21.996,26</td><td>15.239,00</td></tr>
+<tr><td>September</td><td>2,28</td><td>2.482.229,03</td><td>20.744,94</td><td>15.083,00</td></tr>
+<tr><td>Oktober</td><td>2,56</td><td>2.497.710,30</td><td>22.144,52</td><td>15.916,00</td></tr>
+<tr><td>November</td><td>2,86</td><td>2.510.759,32</td><td>21.995,93</td><td>15.526,00</td></tr>
+<tr><td>Desember</td><td>2,61</td><td>2.675.333,28</td><td>22.391,28</td><td>15.416,00</td></tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <hr>
+
+            <h2>Visualisasi Komponen Variasi</h2>
+            <h3>1. Input Data Ke R</h3>
+            <p>Kode R:</p>
+            <div class="code-block">
+                <pre><code>data_regresi <- data.frame(
+  Bulan = c("Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"),
+  Inflasi = c(5.28, 5.47, 4.97, 4.33, 4.00, 3.52, 3.08, 3.27, 2.28, 2.56, 2.86, 2.61),
+  M1 = c(2422174.00, 2403593.54, 2408418.91, 2472869.46, 2423317.96, 2466093.07,
+         2438058.76, 2410850.87, 2482229.03, 2497710.30, 2510759.32, 2675333.28),
+  Ekspor = c(22320.71, 21319.76, 23413.90, 19280.37, 21706.53, 20598.95,
+             20861.29, 21996.26, 20744.94, 22144.52, 21995.93, 22391.28),
+  Kurs = c(14979.00, 15274.00, 14979.00, 14751.00, 15062.00, 15026.00,
+           14969.00, 15239.00, 15083.00, 15916.00, 15526.00, 15416.00)
+)               </code></pre>
+            </div>
+
+            <h3>2. Buat Model</h3>
+            <p>Kode R:</p>
+            <div class="code-block">
+<pre><code>model_regresi <- lm(Inflasi ~ M1 + Ekspor + Kurs, data = data_regresi)
+summary(model_regresi)</code></pre>
+            </div>
+            <p>Output:</p>
+            <div class="code-block">
+                <pre><code>Call:
+lm(formula = Inflasi ~ M1 + Ekspor + Kurs, data = data_regresi)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.20401 -0.36288 -0.05692  0.44794  1.58616 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)  
+(Intercept)  3.583e+01  1.403e+01   2.554    0.034 *
+M1          -6.442e-06  4.103e-06  -1.570    0.155  
+Ekspor       3.213e-04  2.882e-04   1.115    0.297  
+Kurs        -1.526e-03  1.082e-03  -1.411    0.196  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.9217 on 8 degrees of freedom
+Multiple R-squared:  0.498,	Adjusted R-squared:  0.3097 
+F-statistic: 2.645 on 3 and 8 DF,  p-value: 0.1206</code></pre>
+            </div>
+
+            <h3>3. Visualisasi SST (Total Sum of Squares)</h3>
+            <p><strong>SST</strong> memberikan gambaran menyeluruh tentang sejauh mana titik data Y menyimpang dari rata-rata Y. Semakin besar nilai SST, semakin besar pula tantangan variabilitas awal yang harus dihadapi dan dijelaskan oleh model prediksi kita.</p>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjOeOEp_joOhivSOtcVt1-BeiXeuyVcNVoXloBb2xgHL6etDROoVNQ9VMq-u2Hr_DhRnNli1OzOxGjIAq_nReGvXKzoJxQll4ISuc0h-QZCcbzOoX4bhEpBPXthWrCCsx1sB0OI_W0fCAuicT-SDQjf8aRqh2gSxncF0_mP_45zsm3wNVL6T1IIRDQSV34" alt="Visualisasi SST">
+                <p class="caption">Gambar 1: Visualisasi SST(Y~X3)</p>
+            </div>
+            <p>Kode R untuk menghasilkan plot ini:</p>
+            <div class="code-block">
+                <pre><code>plot(Kurs, Inflasi, pch = 16)
+abline(mean(Inflasi), 0, col = "red")
+for(i in 1:12) 
+  lines(c(Kurs[i], Kurs[i]),c(Inflasi[i], mean(Inflasi)))
+points(Kurs, Inflasi, pch = 16)</code></pre>
+            </div>
+
+            <h3>2. Visualisasi SSR (Regression Sum of Squares)</h3>
+            <p><strong>SSR</strong> adalah indikator kritis seberapa efektif model regresi kita dalam menangkap dan menjelaskan variasi yang ada pada variabel Y. Semakin tinggi nilai SSR, semakin besar porsi variasi Y yang berhasil diakomodasi oleh garis regresi, menunjukkan kekuatan prediksi model.</p>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgb-YXs1Ec1AuyKOeSuWLnW71l_7zg1vLLaTC2qQbCVHT9D_ijShyaAIrrH1kq4h1dgRxnungKg37GuszhfKpbbB6eHLePmaRqvm3jHoXRcs1UhqkH61EMCP34JYGOX_86zDHL2uZPiQfbIYVZbctCfMYn2T9HDF16JgtnEZF0Anw_eBhwYvqk4K5HVc4M" alt="Visualisasi SSR">
+                <p class="caption">Gambar 2: Visualisasi SSR (Y~X3)</p>
+            </div>
+            <p>Kode R untuk menghasilkan plot ini:</p>
+            <div class="code-block">
+                <pre><code>attach(data_regresi)
+plot(Kurs,Inflasi, type="n")
+abline(mean(Inflasi), 0, col = "red")
+Yhat <- lm(Inflasi~Kurs)
+abline(Yhat)
+for(i in 1:12) 
+  lines(c(Kurs[i], Kurs[i]),c(mean(Inflasi), predict(Yhat)[i]))
+points(Kurs, predict(Yhat), pch = 16)</code></pre>
+            </div>
+
+            <h3>3. Visualisasi SSE (Error Sum of Squares)</h3>
+            <p><strong>SSE</strong>, atau Sum of Squared Residuals, adalah representasi dari variasi Y yang <strong>tidak dapat</strong> dijelaskan oleh model regresi. Ini mencakup deviasi yang tersisa antara nilai Y aktual dan prediksi model, sering dianggap sebagai 'error' atau variasi yang tak dapat dijelaskan oleh fitur yang ada.</p>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjqciw11wh2wvmRSTe7Ha143DCsadMpKHACT5JI92h5tmM0U-ERiHt1WBRgIi87msC0_whuoIyhZV8c1W_3duAzqyLwFkPAjsjG9smrumVHhJf56ptb5FkAoHYJRr7kLOWTSJetTGXFBzJpRpyJwsSoeUPYd3SOh1-Ezt0-DFt031NvPsM3t4IwOx3xTog" alt="Visualisasi SSE">
+                <p class="caption">Gambar 3: Visualisasi SSE (Y~X3) </p>
+            </div>
+            <p>Kode R untuk menghasilkan plot ini:</p>
+            <div class="code-block">
+                <pre><code>plot(Kurs, Inflasi, pch = 16)
+Yhat <- lm(Inflasi~Kurs)
+abline(Yhat, col = "red")
+for(i in 1:12) lines(c(Kurs[i], Kurs[i]),c(Inflasi[i], predict(Yhat)[i]))</code></pre>
+            </div>
+
+        <footer>
+            <p>&copy; 2025 F-Pubs. Memberdayakan Pemahaman Data. Semua hak dilindungi undang-undang.</p>
+            <p>
+                <a href="#">Kebijakan Privasi</a> | <a href="#">Syarat Penggunaan</a> | <a href="#">Hubungi Kami</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
