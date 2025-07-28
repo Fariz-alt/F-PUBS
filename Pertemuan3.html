@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uji ANOVA Two-Way (Dua Arah)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-light: #fefefe; /* Hampir putih bersih */
+            --bg-medium: #f0f4f8; /* Abu-abu sangat terang untuk kontras halus */
+            --text-dark: #212833; /* Teks gelap, lembut dari hitam */
+            --text-medium: #5a6b7d; /* Teks abu-abu untuk detail */
+            --primary-accent: #007bff; /* Biru cerah */
+            --primary-accent-dark: #0056b3; /* Biru lebih gelap untuk hover */
+            --secondary-accent: #28a745; /* Hijau cerah */
+            --gradient-start: #007bff; /* Biru untuk gradien */
+            --gradient-end: #00d2ff; /* Biru muda untuk gradien */
+            --code-bg: #eff2f6; /* Latar belakang kode yang sangat terang */
+            --code-text: #34495e; /* Teks kode yang terbaca */
+            --border-color-light: #e0e6ed; /* Border sangat terang */
+            --shadow-light: rgba(0, 0, 0, 0.04);
+            --shadow-medium: rgba(0, 0, 0, 0.08);
+            --shadow-bold: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.8; /* Jarak antar baris lebih nyaman */
+            color: var(--text-dark);
+            background-color: var(--bg-medium); /* Background abu-abu muda */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at top left, var(--bg-light) 0%, transparent 40%),
+                              radial-gradient(circle at bottom right, var(--bg-medium) 0%, transparent 40%); /* Gradasi latar belakang halus */
+            background-blend-mode: multiply;
+        }
+
+        .container {
+            max-width: 1050px; /* Lebih lebar sedikit */
+            width: 92%;
+            margin: 60px auto;
+            background: var(--bg-light);
+            padding: 45px 55px;
+            border-radius: 20px; /* Lebih membulat */
+            box-shadow: 0 15px 45px var(--shadow-medium); /* Bayangan lebih dalam */
+            border: 1px solid var(--border-color-light);
+            position: relative;
+            z-index: 1; /* Pastikan di atas efek latar belakang */
+            transition: all 0.4s ease-in-out;
+        }
+        .container:hover {
+            box-shadow: 0 20px 60px var(--shadow-bold);
+            transform: translateY(-3px);
+        }
+
+        /* F-Pubs Logo/Name Styling */
+        .website-logo {
+            text-align: center;
+            margin-bottom: 40px; /* Jarak lebih besar */
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .website-logo a {
+            text-decoration: none;
+            color: var(--primary-accent);
+            font-size: 3em; /* Lebih besar */
+            font-weight: 800; /* Lebih tebal */
+            letter-spacing: 2px; /* Lebih lebar */
+            display: inline-block;
+            padding: 8px 25px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end)); /* Gradasi keren */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border: 2px solid transparent; /* Border transparan untuk gradien */
+            border-image: linear-gradient(45deg, var(--gradient-start), var(--gradient-end)) 1; /* Border gradien */
+            border-radius: 12px;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+            position: relative;
+            overflow: hidden; /* Untuk efek hover background */
+        }
+        .website-logo a::before { /* Efek background pada hover */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            transition: left 0.4s ease;
+            z-index: -1;
+            opacity: 0;
+        }
+        .website-logo a:hover::before {
+            left: 0;
+            opacity: 1;
+        }
+        .website-logo a:hover {
+            -webkit-text-fill-color: var(--bg-light); /* Teks jadi putih saat hover */
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            border-image: none; /* Hilangkan border gradien saat hover */
+            border-color: var(--primary-accent); /* Ganti dengan border solid */
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 3.8em; /* Sangat besar */
+            color: var(--text-dark); /* Lebih gelap */
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.08); /* Bayangan lebih halus */
+            margin-bottom: 15px;
+            font-weight: 800; /* Super tebal */
+            line-height: 1.2;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.35em;
+            color: var(--text-medium);
+            margin-bottom: 50px; /* Jarak lebih besar */
+            font-weight: 400;
+        }
+
+        h2, h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700; /* Lebih tebal */
+            color: var(--primary-accent-dark); /* Warna heading yang kuat */
+            margin-top: 50px;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 2.5em; /* Lebih besar */
+            position: relative;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-color-light); /* Lebih tipis */
+            color: var(--text-dark); /* Heading level 2 lebih gelap */
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 120px; /* Lebih panjang */
+            height: 4px; /* Lebih tebal */
+            background: linear-gradient(to right, var(--primary-accent), var(--gradient-end)); /* Gradien aksen */
+            border-radius: 2px;
+        }
+        h3 {
+            font-size: 1.8em; /* Lebih besar */
+            color: var(--primary-accent);
+            border-bottom: 1px solid var(--border-color-light); /* Border solid */
+            padding-bottom: 12px;
+        }
+        p {
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+            padding-left: 35px; /* Ruang lebih besar untuk ikon */
+            position: relative;
+            font-weight: 400; /* Sedikit lebih tebal */
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+        li::before {
+            content: "\f054"; /* Font Awesome angle-right icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--secondary-accent); /* Ikon hijau */
+            position: absolute;
+            left: 0;
+            top: 4px; /* Penyesuaian posisi */
+            font-size: 0.9em;
+            transform: scale(1.1); /* Sedikit lebih besar */
+        }
+        strong {
+            color: var(--primary-accent-dark);
+            font-weight: 700;
+        }
+        .equation {
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-size: 1.1em; /* Sedikit lebih besar */
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border-left: 6px solid var(--primary-accent); /* Lebih tebal */
+            padding: 22px 28px;
+            margin: 35px 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.98em; /* Sedikit lebih besar */
+            color: var(--code-text);
+            border-radius: 10px; /* Lebih membulat */
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 60px 0;
+            background-color: var(--bg-light); /* Latar belakang sama dengan kontainer utama */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .image-container:hover {
+            transform: translateY(-7px); /* Efek melayang lebih dramatis */
+            box-shadow: 0 15px 40px var(--shadow-medium);
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 3px solid var(--primary-accent); /* Border lebih tebal */
+            border-radius: 10px; /* Lebih membulat */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* Bayangan gambar lebih dalam */
+        }
+        .caption {
+            font-style: italic;
+            color: var(--text-medium);
+            margin-top: 25px;
+            font-size: 1.05em; /* Sedikit lebih besar */
+            font-weight: 300;
+        }
+
+        /* Table Styling */
+        .data-table-container {
+            margin: 40px 0;
+            overflow-x: auto; /* Untuk tabel yang lebar pada layar kecil */
+            background-color: var(--bg-light);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            padding: 20px;
+        }
+        .data-table-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color-light);
+            color: var(--primary-accent);
+            font-size: 1.6em;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Fira Code', monospace; /* Font monospace untuk data */
+            font-size: 0.9em;
+            color: var(--code-text);
+        }
+        .data-table thead th {
+            background-color: var(--primary-accent);
+            color: var(--bg-light);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-accent-dark);
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-medium); /* Warna latar genap */
+        }
+        .data-table tbody tr:hover {
+            background-color: #e6f7ff; /* Hover effect */
+            color: var(--primary-accent-dark);
+        }
+        .data-table tbody td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-color-light), transparent);
+            margin: 60px 0; /* Jarak lebih besar */
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 70px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color-light);
+            color: var(--text-medium);
+            font-size: 0.95em;
+            font-weight: 300;
+        }
+        footer a {
+            color: var(--primary-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: var(--primary-accent-dark);
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 30px auto;
+                padding: 30px 35px;
+            }
+            .website-logo a {
+                font-size: 2em;
+                padding: 5px 15px;
+            }
+            header h1 {
+                font-size: 2.8em;
+            }
+            .subtitle {
+                font-size: 1.1em;
+                margin-bottom: 30px;
+            }
+            h2 {
+                font-size: 2em;
+            }
+            h3 {
+                font-size: 1.5em;
+            }
+            .code-block {
+                font-size: 0.9em;
+                padding: 20px;
+            }
+            .image-container {
+                margin: 40px 0;
+                padding: 20px;
+            }
+            li {
+                padding-left: 30px;
+            }
+            .data-table thead th,
+            .data-table tbody td {
+                padding: 8px 10px; /* Kurangi padding tabel */
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            .subtitle {
+                font-size: 1em;
+            }
+            h2 {
+                font-size: 1.6em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+            .website-logo a {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+<script type="text/javascript" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="website-logo">
+                <a href="#">F-Pubs</a> 
+                </div>
+            <h1>Uji ANOVA Two-Way<br>(Dua Arah)</h1>
+            <p class="subtitle">Menganalisis pengaruh dua faktor dan interaksinya pada satu variabel dependen.</p>
+        </header>
+
+        <hr>
+
+        <main>
+            <h2>Apa Itu Uji ANOVA Two-Way?</h2>
+            <p><strong>ANOVA Two-Way</strong> adalah perluasan dari ANOVA One-Way. Jika ANOVA One-Way digunakan untuk membandingkan rata-rata di antara dua atau lebih kelompok yang dibentuk oleh satu faktor kategorikal, maka ANOVA Two-Way digunakan ketika kita memiliki <strong>dua faktor kategorikal</strong> dan ingin melihat pengaruhnya terhadap satu <strong>variabel dependen kontinu</strong>.</p>
+            <p>Selain menguji efek individual dari setiap faktor (disebut <strong>efek utama</strong> atau <em>main effects</em>), ANOVA Two-Way juga memungkinkan kita untuk menguji <strong>efek interaksi</strong> (<em>interaction effect</em>) antara kedua faktor tersebut. Efek interaksi terjadi ketika efek dari satu faktor pada variabel dependen tidak sama di semua level faktor lainnya.</p>
+
+            <h3>Kapan Menggunakan ANOVA Two-Way?</h3>
+            <p>Anda harus menggunakan ANOVA Two-Way ketika:</p>
+            <ul>
+                <li>Anda memiliki satu <strong>variabel dependen kontinu</strong> (misalnya, nilai ujian, tinggi tanaman, tekanan darah, dll.).</li>
+                <li>Anda memiliki <strong>dua variabel independen kategorikal</strong> (faktor), masing-masing dengan dua atau lebih level/kelompok (misalnya, Jenis Kelamin: Pria/Wanita; Jenis Obat: A/B/C; Tingkat Pendidikan: SMA/Sarjana/Pascasarjana).</li>
+                <li>Anda ingin mengetahui:
+                    <ul>
+                        <li>Apakah ada efek signifikan dari Faktor 1 pada variabel dependen?</li>
+                        <li>Apakah ada efek signifikan dari Faktor 2 pada variabel dependen?</li>
+                        <li>Apakah ada interaksi antara Faktor 1 dan Faktor 2 yang memengaruhi variabel dependen?</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <hr>
+
+            <h2>Hipotesis dalam ANOVA Two-Way</h2>
+            <p>Dalam ANOVA Two-Way, ada tiga pasang hipotesis nol (\( H_0 \)) dan hipotesis alternatif (\( H_1 \)) yang diuji:</p>
+
+            <h3>1. Untuk Efek Utama Faktor A:</h3>
+            <ul>
+                <li>\( H_0 \): Tidak ada perbedaan signifikan dalam rata-rata variabel dependen di antara level-level Faktor A.</li>
+                <li>\( H_1 \): Ada perbedaan signifikan dalam rata-rata variabel dependen di antara level-level Faktor A.</li>
+            </ul>
+
+            <h3>2. Untuk Efek Utama Faktor B:</h3>
+            <ul>
+                <li>\( H_0 \): Tidak ada perbedaan signifikan dalam rata-rata variabel dependen di antara level-level Faktor B.</li>
+                <li>\( H_1 \): Ada perbedaan signifikan dalam rata-rata variabel dependen di antara level-level Faktor B.</li>
+            </ul>
+
+            <h3>3. Untuk Efek Interaksi Faktor A x Faktor B:</h3>
+            <ul>
+                <li>\( H_0 \): Tidak ada interaksi signifikan antara Faktor A dan Faktor B yang memengaruhi variabel dependen (efek Faktor A konsisten di semua level Faktor B, dan sebaliknya).</li>
+                <li>\( H_1 \): Ada interaksi signifikan antara Faktor A dan Faktor B yang memengaruhi variabel dependen (efek Faktor A bervariasi di antara level-level Faktor B, atau sebaliknya).</li>
+            </ul>
+
+            <hr>
+
+            <h2>Asumsi ANOVA Two-Way</h2>
+            <p>Agar hasil ANOVA Two-Way valid, beberapa asumsi harus dipenuhi:</p>
+            <ul>
+                <li><strong>Variabel Dependen Kontinu:</strong> Variabel dependen harus diukur pada skala interval atau rasio.</li>
+                <li><strong>Variabel Independen Kategorikal:</strong> Kedua variabel independen harus kategorikal (nominal atau ordinal).</li>
+                <li><strong>Independensi Observasi:</strong> Setiap observasi (data point) harus independen satu sama lain.</li>
+                <li><strong>Tidak Ada Outlier Signifikan:</strong> Data tidak boleh memiliki outlier ekstrem yang dapat memengaruhi hasil secara berlebihan.</li>
+                <li><strong>Normalitas:</strong> Variabel dependen harus berdistribusi normal secara *aproksimasi* untuk setiap kombinasi kelompok dari kedua faktor.</li>
+                <li><strong>Homogenitas Variansi (Homoscedasticity):</strong> Variansi variabel dependen harus kira-kira sama di antara semua kombinasi kelompok dari kedua faktor. Ini dapat diuji dengan **Levene's Test**.</li>
+            </ul>
+
+            <hr>
+
+            <h2>Langkah-langkah Melakukan Uji ANOVA Two-Way di R</h2>
+            <p>Mari kita gunakan contoh hipotetis. Misalkan kita ingin melihat apakah ada pengaruh <strong>jenis pupuk</strong> (Faktor A: Pupuk A, Pupuk B) dan <strong>jenis tanah</strong> (Faktor B: Tanah Liat, Tanah Pasir) terhadap <strong>tinggi tanaman</strong> (variabel dependen kontinu).</p>
+
+            <h3>Data Contoh:</h3>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Jenis Pupuk</th>
+                            <th>Jenis Tanah</th>
+                            <th>Tinggi Tanaman (cm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Pupuk A</td><td>Tanah Liat</td><td>15, 17, 16, 18, 14</td></tr>
+                        <tr><td>Pupuk A</td><td>Tanah Pasir</td><td>10, 12, 11, 9, 13</td></tr>
+                        <tr><td>Pupuk B</td><td>Tanah Liat</td><td>20, 22, 19, 21, 23</td></tr>
+                        <tr><td>Pupuk B</td><td>Tanah Pasir</td><td>14, 16, 15, 17, 13</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>1. Membuat Data Frame di R</h3>
+            <div class="code-block">
+                <pre><code># Membuat data frame untuk contoh
+data_tanaman <- data.frame(
+  Tinggi_Tanaman = c(15, 17, 16, 18, 14, # Pupuk A, Tanah Liat
+                     10, 12, 11, 9, 13,  # Pupuk A, Tanah Pasir
+                     20, 22, 19, 21, 23, # Pupuk B, Tanah Liat
+                     14, 16, 15, 17, 13),# Pupuk B, Tanah Pasir
+  Pupuk = factor(rep(c("Pupuk A", "Pupuk B"), each = 10)),
+  Tanah = factor(rep(c("Tanah Liat", "Tanah Pasir", "Tanah Liat", "Tanah Pasir"), each = 5))
+)</code></pre>
+            </div>
+            <h3>2. Visualisasi Data (Opsional, tapi Sangat Disarankan)</h3>
+            <p>Visualisasi dapat membantu Anda memahami distribusi data dan potensi interaksi sebelum melakukan uji statistik.</p>
+            <h4>Box Plot per Kombinasi Faktor:</h4>
+            <div class="code-block">
+                <pre><code>boxplot(Tinggi_Tanaman ~ Pupuk * Tanah, data = data_tanaman,
+        main = "Distribusi Tinggi Tanaman berdasarkan Pupuk dan Tanah",
+        xlab = "Kombinasi Pupuk dan Tanah",
+        ylab = "Tinggi Tanaman (cm)",
+        col = c("#ADD8E6", "#90EE90", "#FFD700", "#FFA07A"),
+        border = "darkgray")</code></pre>
+            </div>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiDUoHaVrl_42dXPg1VI_xAPm7MuMpgexnjUvLQDMjKKQ1qxhUsPdRtjBePNzdEOKyXJX9Xj8anL3aexE9FaWYjpYW8WFU1jwyrbJApnlV9EzsJCZg-5xo8WydcVvHiia_Sgg5tbdHQ-SvC4LIPcy1bt002nrQ24ALY2CwDxEQE7AaWWZDmASnpa8Ne3Rk" alt="Contoh Box Plot Kombinasi Faktor">
+                <p class="caption">Gambar 1: Contoh Box Plot Tinggi Tanaman berdasarkan Jenis Pupuk dan Jenis Tanah.</p>
+            </div>
+
+            <h4>Plot Interaksi:</h4>
+            <p>Plot interaksi sangat penting untuk memahami apakah efek satu faktor bergantung pada level faktor lainnya. Jika garis-garis tidak paralel, ini mengindikasikan adanya interaksi.</p>
+            <div class="code-block">
+                <pre><code># Membutuhkan paket 'ggplot2' atau fungsi 'interaction.plot' dasar
+# install.packages("ggplot2") # Jika belum terinstall
+library(ggplot2)
+
+ggplot(data_tanaman, aes(x = Pupuk, y = Tinggi_Tanaman, color = Tanah, group = Tanah)) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  stat_summary(fun = mean, geom = "line", size = 1) +
+  labs(title = "Plot Interaksi: Tinggi Tanaman vs. Pupuk & Tanah",
+       x = "Jenis Pupuk",
+       y = "Rata-rata Tinggi Tanaman (cm)",
+       color = "Jenis Tanah") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Atau menggunakan fungsi dasar R 'interaction.plot'
+interaction.plot(x.factor = data_tanaman$Pupuk,
+                 trace.factor = data_tanaman$Tanah,
+                 response = data_tanaman$Tinggi_Tanaman,
+                 fun = mean,
+                 type = "b", # both points and lines
+                 col = c("blue", "red"),
+                 pch = c(16, 17),
+                 main = "Plot Interaksi: Tinggi Tanaman vs. Pupuk & Tanah",
+                 xlab = "Jenis Pupuk",
+                 ylab = "Rata-rata Tinggi Tanaman (cm)")</code></pre>
+            </div>
+            <div class="image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEi3w5FRS3OtpOGD2Q41bj1L56-7hxreZSP4meS108ksK7XrNkdvSCEGJ7u6n8CB4sjac-2ZTJEux-ZCqxe2GSU61SIUOaV0eFMSA3iEEWX2JtB4mRDefKwwTntmEqu1MnlFLaugSI88oq8LrR3kPRA-HDZzaZICIxqwrK-_raKe0OixyVuwf9P8ZwJI9SA" alt="Contoh Plot Interaksi">
+                <p class="caption">Gambar 2: Contoh Plot Interaksi antara Jenis Pupuk dan Jenis Tanah terhadap Tinggi Tanaman.</p>
+            </div>
+
+            <h3>3. Memeriksa Asumsi Homogenitas Variansi (Levene's Test)</h3>
+            <p>Penting untuk memeriksa asumsi homogenitas variansi menggunakan Levene's Test.</p>
+            <div class="code-block">
+                <pre><code># install.packages("car") # Jika belum terinstall
+library(car)
+leveneTest(Tinggi_Tanaman ~ Pupuk * Tanah, data = data_tanaman)</code></pre>
+            </div>
+            <p>Jika p-value dari Levene's Test lebih besar dari 0.05, asumsi homogenitas variansi terpenuhi.</p>
+
+            <h3>4. Melakukan Uji ANOVA Two-Way</h3>
+            <p>Gunakan fungsi `aov()` untuk menjalankan analisis ANOVA.</p>
+            <div class="code-block">
+                <pre><code># Jalankan ANOVA Two-Way (termasuk efek interaksi)
+model_anova <- aov(Tinggi_Tanaman ~ Pupuk * Tanah, data = data_tanaman)
+
+# Tampilkan ringkasan hasil ANOVA
+summary(model_anova)</code></pre>
+            </div>
+
+            <h3>5. Interpretasi Hasil</h3>
+            <p>Output dari `summary(model_anova)` akan menampilkan tabel ANOVA. Fokus pada kolom `Pr(>F)` (nilai p-value) untuk setiap faktor dan interaksi.</p>
+            <p><strong>Contoh Output (hipotetis):</strong></p>
+            <div class="code-block">
+                <pre><code>            Df Sum Sq Mean Sq F value   Pr(>F)    
+Pupuk        1 101.25  101.25    40.5 9.39e-06 ***
+Tanah        1 151.25  151.25    60.5 7.97e-07 ***
+Pupuk:Tanah  1   1.25    1.25     0.5     0.49    
+Residuals   16  40.00    2.50                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</code></pre>
+            </div>
+
+            <p><strong>Langkah-langkah Interpretasi:</strong></p>
+            <ol>
+                <li><strong>Periksa Efek Interaksi (`Pupuk:Tanah`) terlebih dahulu.</strong>
+                    <ul>
+                        <li>Jika p-value interaksi &lt; level signifikansi (misalnya 0.05): Ada efek interaksi yang signifikan. Ini berarti efek satu faktor pada variabel dependen (tinggi tanaman) bergantung pada level faktor lainnya. Dalam kasus ini, **efek utama tidak boleh diinterpretasikan secara langsung** tanpa mempertimbangkan interaksi. Lihat plot interaksi untuk memahami detailnya.</li>
+                        <li>Jika p-value interaksi &gt; level signifikansi (misalnya 0.05): Tidak ada efek interaksi yang signifikan. Efek satu faktor pada tinggi tanaman relatif konsisten di semua level faktor lainnya. Anda kemudian dapat melanjutkan untuk menginterpretasikan efek utama.</li>
+                    </ul>
+                </li>
+                <li><strong>Periksa Efek Utama (`Pupuk` dan `Tanah`)</strong> (Hanya jika interaksi tidak signifikan atau jika Anda memahami cara menginterpretasikan efek utama di hadapan interaksi).
+                    <ul>
+                        <li>Untuk <code>Pupuk</code>: Jika p-value <code>Pupuk</code> &lt; 0.05, ada perbedaan signifikan.</li>
+                        <li>Untuk <code>Tanah</code>: Jika p-value <code>Tanah</code> &lt; 0.05, ada perbedaan signifikan.</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h3>6. Melakukan Post-Hoc Test (Jika Diperlukan)</h3>
+            <p>Jika efek utama atau interaksi signifikan, Anda mungkin perlu tes *post-hoc* seperti **Tukey's HSD** untuk mengidentifikasi kelompok mana yang berbeda secara spesifik.</p>
+            <div class="code-block">
+                <pre><code># Contoh Tukey HSD untuk semua kombinasi (jika interaksi signifikan)
+TukeyHSD(model_anova, which = "Pupuk:Tanah")</code></pre>
+            </div>
+            <p>Output Tukey HSD akan menunjukkan perbedaan rata-rata antar kelompok, interval kepercayaan, dan p-value yang disesuaikan.</p>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 F-Pubs. Memberdayakan Pemahaman Data. Semua hak dilindungi undang-undang.</p>
+            <p>
+                <a href="#">Kebijakan Privasi</a> | <a href="#">Syarat Penggunaan</a> | <a href="#">Hubungi Kami</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
