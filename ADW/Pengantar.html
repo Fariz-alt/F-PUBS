@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Deret Waktu dengan Metode ARIMA Box-Jenkins</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #6C757D;
+            --background-color: #F8F9FA;
+            --card-background: #FFFFFF;
+            --text-color: #343A40;
+            --heading-color: #0056b3;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        header h1 {
+            color: var(--heading-color);
+            font-size: 2.8rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        header p {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary-color);
+            padding-left: 15px;
+            line-height: 1.2;
+        }
+
+        .section-content p, .section-content li {
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .step-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .step-list li {
+            background-color: #E9F5FF;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .step-list li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-list li strong {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .image-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-item {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .sub-heading {
+            color: var(--heading-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .formula-box {
+            background-color: #F0F8FF;
+            border: 1px solid #B0D8FF;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+        }
+
+        .formula-box code {
+            display: block;
+            white-space: pre-wrap;
+        }
+
+        .callout {
+            background-color: #FFF3CD;
+            border-left: 5px solid #FFC107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #664d03;
+        }
+
+        .callout strong {
+            color: #FFC107;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            .image-item {
+                min-width: 100%;
+            }
+        }
+    </style>
+    <script>
+      MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Metode ARIMA Box-Jenkins untuk Analisis Deret Waktu</h1>
+            <p>Model Autoregressive Integrated Moving Average (ARIMA) digunakan untuk memahami dan memprediksi data deret waktu.</p>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">Pengenalan Model ARIMA</h2>
+            <div class="section-content">
+                <p>Model ARIMA (Autoregressive Integrated Moving Average) diperkenalkan oleh George Box dan Gwilym Jenkins. Model ini menggabungkan dua aspek utama: autoregresive (AR) dan moving average (MA).</p>
+                <p>Secara umum, model ini dinotasikan sebagai ARIMA (p, d, q), di mana:</p>
+                <ul>
+                    <li><strong>p</strong>: Orde dari proses autoregressive (AR).</li>
+                    <li><strong>d</strong>: Derajat differencing yang dibutuhkan untuk membuat data stasioner.</li>
+                    <li><strong>q</strong>: Orde dari proses moving average (MA).</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Empat Tahap Pendekatan Box-Jenkins</h2>
+            <div class="section-content">
+                <p>Analisis dengan metode Box-Jenkins melibatkan empat tahap utama yang saling berulang hingga model yang optimal ditemukan.  </p>
+                                <div class="image-container">
+                    <div class="image-row">
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image.png" alt="Contoh Plot ACF" style="max-width: 1000px;">
+                        </div>
+                    </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Tahap 1: Identifikasi Model Awal</h2>
+            <div class="section-content">
+                <p>Tahap ini bertujuan untuk menentukan apakah data deret waktu sudah stasioner dan memilih model ARIMA (p, d, q) yang potensial.</p>
+                <h3 class="sub-heading">a. Pemeriksaan Stasioneritas</h3>
+                <p>Stasioneritas data diperiksa melalui plot time series. Data dikatakan stasioner jika rata-rata (mean) dan variansi (variance) konstan sepanjang waktu. Jika data tidak stasioner, langkah-langkah berikut dapat dilakukan:</p>
+                <ul>
+                    <li>Jika non-stasioner terhadap rata-rata, lakukan proses differencing (pembedaan).</li>
+                    <li>Jika non-stasioner terhadap variansi, lakukan transformasi Box-Cox.</li>
+                    <li>Jika non-stasioner dalam keduanya, stabilkan variansi terlebih dahulu, lalu lakukan differencing.</li>
+                </ul>
+                <div class="image-container">
+                    <p style="font-weight: bold; margin-bottom: 10px;">Berbagai Pola Stasioneritas pada Plot Time Series</p>
+                    <div class="image-row">
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/1.-teknik-forecasting-1.png" style="max-width: 245px;">
+                            <p style="margin-top: 5px;">Stasioner terhadap rata-rata maupun variansi</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-3.png" alt="Non-Stasioner terhadap rata-rata tapi stasioner terhadap variansi" style="max-width: 300px;">
+                            <p style="margin-top: 5px;">Non-Stasioner terhadap rata-rata tapi stasioner terhadap variansi</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-1.png" alt="Stasioner terhadap rata-rata tapi Non-stasioner terhadap variansi" style="max-width: 300px;">
+                            <p style="margin-top: 5px;">Stasioner terhadap rata-rata tapi Non-stasioner terhadap variansi</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-1.png" alt="Non- Stasioner terhadap rata-rata maupun terhadap variansi" style="max-width: 300px;">
+                            <p style="margin-top: 5px;">Non- Stasioner terhadap rata-rata maupun terhadap variansi</p>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="sub-heading">b. Analisis ACF dan PACF</h3>
+                <p>Setelah data stasioner, kita menganalisis plot Autocorrelation Function (ACF) dan Partial Autocorrelation Function (PACF) untuk menentukan orde model (p dan q). Pola pada plot ini akan menunjukkan apakah model lebih cenderung ke arah AR, MA, atau kombinasi keduanya.</p>
+                <div class="image-container">
+                    <div class="image-row">
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-4.png" alt="Contoh Plot ACF" style="max-width: 1000px;">
+                        </div>
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-5.png" alt="Contoh Plot ACF" style="max-width: 1000px;">
+                        </div>
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-6.png" alt="Contoh Plot ACF" style="max-width: 1000px;">
+                        </div>
+                        <div class="image-item">
+                            <img src="https://fariz958.wordpress.com/wp-content/uploads/2025/02/image-7.png" alt="Contoh Plot ACF" style="max-width: 1000px;">
+                        </div>
+                    <p style="font-style: italic; font-size: 0.9em; margin-top: 10px;">Catatan: Interpretasi pola ACF dan PACF memerlukan pemahaman mendalam tentang karakteristik model AR dan MA.</p>
+                </div>
+            </div>
+        </section>
+
+<section class="section">
+    <h2 class="section-title">Tahap 2: Penaksiran Parameter</h2>
+    <div class="section-content">
+        <p>Setelah mengidentifikasi model sementara, langkah selanjutnya adalah menaksir parameter-parameter model. 
+        Sebagai ilustrasi, kita ambil contoh model AR(1).</p>
+
+        <div class="formula-box">
+            <p><strong>Model umum ARIMA(p,d,q):</strong></p>
+            <p>
+                $$\left( 1 - \sum_{i=1}^{p} \phi_i B^i \right) (1 - B)^d Z_t 
+                = \left( 1 + \sum_{j=1}^{q} \theta_j B^j \right) \varepsilon_t$$
+            </p>
+            <p>Di mana \(B\) adalah operator lag. Sebagai contoh, \(B^k Z_t = Z_{t-k}\).</p>
+
+            <p>Jika diasumsikan model sementara adalah ARIMA(1,0,0), maka \(p = 1\), \(d = 0\), dan \(q = 0\).</p>
+
+            <p>Model AR(1) dapat ditulis sebagai:</p>
+            <p>
+                $$(1 - \phi_1 B) Z_t = \varepsilon_t$$
+            </p>
+            <p>
+                $$Z_t - \phi_1 Z_{t-1} = \varepsilon_t$$
+            </p>
+            <p>atau</p>
+            <p>
+                $$Z_t = \phi_1 Z_{t-1} + \varepsilon_t$$
+            </p>
+        </div>
+
+        <div class="callout">
+            <p><strong>Pertanyaan Penting:</strong> Apa yang terjadi jika parameter \(\phi_1\) bernilai satu?</p>
+            <p>Jika \(\phi_1 = 1\), maka model menjadi:</p>
+            <p>
+                $$Z_t = Z_{t-1} + \varepsilon_t$$
+            </p>
+            <p>Model ini dikenal sebagai <em>Random Walk</em> dan merupakan contoh deret waktu non-stasioner. 
+            Hal ini menunjukkan pentingnya pemeriksaan stasioneritas dan nilai parameter sebelum menggunakan model.</p>
+        </div>
+    </div>
+</section>
+
+
+        <section class="section">
+            <h2 class="section-title">Tahap 3: Pemeriksaan Diagnostik</h2>
+            <div class="section-content">
+                <p>Tahap ini adalah validasi model. Ada dua pemeriksaan utama:</p>
+                <ul class="step-list">
+                    <li>
+                        <strong>Uji Kesignifikanan Parameter</strong>
+                        <p>Menggunakan Uji-t untuk memastikan bahwa parameter model yang diestimasi (misalnya $\phi$ dan $\theta$) signifikan secara statistik (berbeda dari nol).</p>
+                    </li>
+                    <li>
+                        <strong>Uji Kesesuaian Model</strong>
+                        <p>Memeriksa asumsi sisa (residual) model. Sisa harus berdistribusi normal dan bersifat white noise (tidak ada korelasi antar sisa). Ini diuji dengan:</p>
+                        <ul>
+                            <li>Uji Ljung-Box: Menguji apakah sisa bersifat white noise.</li>
+                            <li>Uji Kolmogorov-Smirnov: Menguji apakah sisa berdistribusi normal.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Tahap 4: Peramalan (Forecasting)</h2>
+            <div class="section-content">
+                <p>Jika semua parameter model signifikan dan semua asumsi terpenuhi pada tahap diagnostik, maka model siap digunakan untuk peramalan nilai masa depan.</p>
+                <p>Namun, jika ada parameter yang tidak signifikan atau asumsi tidak terpenuhi, kita harus kembali ke Tahap 1 (Identifikasi Model Awal) untuk mencoba model ARIMA (p, d, q) yang lain.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Analisis Deret Waktu. Semua hak dilindungi.</p>
+        </footer>
+    </div>
+</body>
+</html>
